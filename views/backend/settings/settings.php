@@ -8,10 +8,14 @@
 				<tr valign="top">
 					<th scope="row"><label for="wp-convertkit-api_key"><?php _e('API Key'); ?></label></th>
 					<td>
-						<input class="regular-text code" type="text" name="wp-convertkit[api_key]" id="wp-convertkit-api_key" value="<?php esc_attr_e($settings['api_key']); ?>" /><br />
-						<small><a href="https://convertkit.com/app/account/edit" target="_blank"><?php _e('Get your ConvertKit key now'); ?></a></small>
+						<input class="regular-text code" type="text" name="wp-convertkit[api_key]" id="wp-convertkit-api_key" value="<?php esc_attr_e($settings['api_key']); ?>" />
+						<?php if(empty($settings['api_key'])) { ?>
+              <br/>
+						  <small><a href="https://convertkit.com/app/account/edit" target="_blank"><?php _e('Get your ConvertKit key now'); ?></a></small>
+            <?php } ?>
 					</td>
 				</tr>
+				<?php if(!empty($settings['api_key'])) { ?>
 
 				<tr valign="top">
 					<th scope="row"><label for="wp-convertkit-default_form"><?php _e('Default Form'); ?></label></th>
@@ -38,6 +42,7 @@
 						</select>
 					</td>
 				</tr>
+        <?php } ?>
 			</tbody>
 		</table>
 

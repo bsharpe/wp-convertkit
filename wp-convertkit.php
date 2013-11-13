@@ -11,9 +11,13 @@
 if(!class_exists('WP_ConvertKit')) {
 	class WP_ConvertKit {
 		/// CONSTANTS
-
+    
+    //// API
+    const API_HOST = "http://api.convertkit.dev";
+    const API_VERSION = 2;
+      
 		//// VERSION
-		const VERSION = '1.0.0-RC1';
+		const VERSION = '1.0.1-RC1';
 
 		//// KEYS
 		const POST_META_KEY = '_wp_convertkit_post_meta';
@@ -208,14 +212,18 @@ if(!class_exists('WP_ConvertKit')) {
 			$forms = array();
 
 			if(!empty($api_key)) {
-				$request_url = add_query_arg(compact('api_key'), 'https://convertkit.com/app/api/v1/forms.json');
+  			$query_args = array('v' => self::API_VERSION, 'k' => $api_key);
+        $request_url = add_query_arg($query_args, self::API_HOST . '/forms');
+        render_ToDebugBar('main','msg','APICALL',$request_url);
 				$response = wp_remote_get($request_url, array('sslverify' => false));
+        render_ToDebugBar('main','pr','APICALL',$response);
 
 				if(!is_wp_error($response)) {
 					$decoded = json_decode(wp_remote_retrieve_body($response), true);
 					if(is_array($decoded)) {
 						foreach($decoded as $decoded_item) {
-							$forms[] = $decoded_item['landing_page'];
+              render_ToDebugBar('main','pr','result',$decoded_item);
+							$forms[] = $decoded_item;
 						}
 					}
 				}
@@ -262,18 +270,20 @@ if(!class_exists('WP_ConvertKit')) {
 			$form = intval(($form < 0) ? self::_get_settings('default_form') : $form);
 
 			$form_orientation = ('default' === $form_orientation) ? self::_get_settings('default_form_orientation') : $form_orientation;
-			$form_orientation = 'vertical' === $form_orientation ? 'vert' : false;
+			$form_orientation = 'vertical' === $form_orientation ? 'vertical' : 'horizontal';
 
+			$api_key = self::_get_settings('api_key');
 			$embed = '';
 
 			if($form > 0) {
-				$url = add_query_arg(array('orient' => $form_orientation), sprintf('https://convertkit.com/app/landing_pages/%d.js', $form));
+				$url = add_query_arg(array('o' => $form_orientation, 'v' => self::API_VERSION, 'k' => $api_key), sprintf(self::API_HOST . '/forms/%d/embed.js', $form));
 
 				$embed = sprintf('<script src="%s"></script>', $url);
 			}
 
 			return $embed;
 		}
+    
 	}
 
 	require_once('lib/template-tags.php');
